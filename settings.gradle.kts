@@ -4,8 +4,10 @@ rootProject.name = "genak"
 pluginManagement {
     repositories {
         gradlePluginPortal()
-//        google()
+        google()
         mavenCentral()
+        jcenter()
         maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap") }
+
     }
 }

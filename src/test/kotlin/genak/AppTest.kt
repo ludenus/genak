@@ -3,13 +3,23 @@
  */
 package genak
 
-import kotlin.test.Test
-import kotlin.test.assertNotNull
+import kotlinx.coroutines.experimental.runBlocking
+import org.slf4j.LoggerFactory
+import org.testng.annotations.Test
 
 class AppTest {
+    val log = LoggerFactory.getLogger(this.javaClass.name)
+
     @Test
-    fun testAppHasAGreeting() {
-        val classUnderTest = App()
-        assertNotNull(classUnderTest.greeting, "app should have a greeting")
+    fun tst() = runBlocking {
+
+        val (result, totalTime) = time {
+            spawn(1_000_000) { timestamp() }.map { it.await() }
+        }
+
+        val zeroMsCount = result.filter { it.second.elapsedMs == 0L }.count()
+
+        log.info("totalTime {}, zeroMsCount {}", totalTime, zeroMsCount)
     }
+
 }
