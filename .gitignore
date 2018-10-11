@@ -3,4 +3,6 @@
 
 .gradle
 
+out
+
 build
