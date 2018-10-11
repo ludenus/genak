@@ -36,6 +36,10 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.2.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
+    // http client
+    implementation("com.github.kittinunf.fuel:fuel:1.15.0")
+
+
     // Use TestNG framework, also requires calling test.useTestNG() below
     testImplementation("org.testng:testng:6.14.3")
 

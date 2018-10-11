@@ -1,0 +1,28 @@
+---
+version: "2"
+services:
+  pong:
+    image: "ludenus/pong:0.0.1"
+    ports:
+    - "8100:80"
+    environment:
+      PONG_LISTENING_ADDRESS: ":80"
+
+  grafana:
+    image: "grafana/grafana:5.3.0"
+    ports:
+    - "3100:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "********"
+
+  influxdb:
+    image: "influxdb:latest"
+    ports:
+    - "8186:8086"
+    - "8183:8083"
+    - "2103:2003"
+    environment:
+      INFLUXDB_DB: "qadb"
+      #      INFLUXDB_GRAPHITE_ENABLED: "true"
+      INFLUXDB_USER: "dbuser"
+      INFLUXDB_USER_PASSWORD: "********"

@@ -11,11 +11,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-fun <V> spawn(i: Int, lambda: () -> V): List<Deferred<Pair<V, Timings>>> = (0..i).map {
+fun <V> spawn(i: Int, lambda: () -> V): List<Deferred<Pair<V, Timings>>> = (1..i).map {
     async {
         time { lambda() }
     }
 }
+
+suspend fun <V> spawnAndAwaitAll(i: Int, lambda: () -> V) = spawn(i, lambda).map { it.await() }
 
 
 inline fun timestamp() = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Date())

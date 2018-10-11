@@ -3,23 +3,46 @@
  */
 package genak
 
+import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.result.Result
 import kotlinx.coroutines.experimental.runBlocking
 import org.slf4j.LoggerFactory
 import org.testng.annotations.Test
+import java.util.concurrent.atomic.AtomicLong
 
 class AppTest {
+
     val log = LoggerFactory.getLogger(this.javaClass.name)
+
+    val id = AtomicLong(0)
 
     @Test
     fun tst() = runBlocking {
 
-        val (result, totalTime) = time {
-            spawn(1_000_000) { timestamp() }.map { it.await() }
+        val (results, totalTime) = time {
+            spawnAndAwaitAll(1000_000) {
+                wget(id.getAndIncrement())
+            }
         }
 
-        val zeroMsCount = result.filter { it.second.elapsedMs == 0L }.count()
+        val zeroMsCount = results.filter { it.second.elapsedMs == 0L }.count()
+        val okCount = results.filter { it.first is Result.Success }.count()
 
-        log.info("totalTime {}, zeroMsCount {}", totalTime, zeroMsCount)
+//        results.forEach { (res, tim) ->
+//            val r: Result<String, FuelError> = res
+//            log.info("{}", res)
+//        }
+
+        log.info("totalTime {}, zeroMsCount {}, okCount {}", totalTime, zeroMsCount, okCount)
+    }
+
+
+    inline fun url(id: Long) = "http://localhost:1234/ping/${id}"
+
+    fun wget(id: Long): Result<String, FuelError> {
+        val (request, response, result) = url(id).httpGet().responseString()
+        return result
     }
 
 }
