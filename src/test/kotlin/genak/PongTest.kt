@@ -59,13 +59,13 @@ class PongTest {
             spawn(total) {
                 wget(id.getAndIncrement())
             }.mapIndexed { i, promise ->
-                logProgress(i, total, 10, "promise")
+                logProgressTime(i, total, "promise", 1000)
                 promise
             }.map {
                 runBlocking { it.await() }
             }.mapIndexed { i, fulfilled ->
                 val (res, tim) = fulfilled
-                logProgress(i, total, 10, "fulfilled")
+                logProgressPart(i, total, "fulfilled", 100)
                 influxDb.write(measurement(res, tim))
                 fulfilled
             }.count()//.toList()
@@ -77,8 +77,14 @@ class PongTest {
         log.info("totalTime {} msec", totalTime)
     }
 
-    inline fun logProgress(i: Int, total: Int, intervals: Int = 100, tag: String = "") {
-        if (0 == i % (total / intervals)) {
+    inline fun logProgressTime(i: Int, total: Int, tag: String = "", periodInMilliseconds: Long = 1000) {
+        if (0L == System.currentTimeMillis() % periodInMilliseconds) {
+            log.info("{}: {} / {}", tag, i, total)
+        }
+    }
+
+    inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 100) {
+        if (0 == i % (total / parts)) {
             log.info("{}: {} / {}", tag, i, total)
         }
     }
