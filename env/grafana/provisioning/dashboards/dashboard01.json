@@ -193,7 +193,7 @@
             }
           ],
           "hide": false,
-          "measurement": "cpu_load_short",
+          "measurement": "heartbeat",
           "orderByTime": "ASC",
           "policy": "autogen",
           "refId": "A",
