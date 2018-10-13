@@ -14,13 +14,14 @@ inline fun <V> time(lambda: () -> V): Pair<V, Timings> {
     return Pair(result, Timings(begin, end))
 }
 
-fun <V> spawn(i: Int, lambda: () -> V): List<Deferred<Pair<V, Timings>>> = (1..i).map {
+fun <V> spawn(i: Int, lambda: () -> V): Sequence<Deferred<Pair<V, Timings>>> = (1..i).asSequence().map {
     async {
         time { lambda() }
     }
 }
 
 
-suspend fun <V> spawnAndAwaitAll(i: Int, lambda: () -> V) = spawn(i, lambda).map { it.await() }
+//suspend fun <V> spawnAndAwaitAll(i: Int, lambda: () -> V) = spawn(i, lambda).map { it.await() }
 
 inline fun timestamp() = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Date())
+

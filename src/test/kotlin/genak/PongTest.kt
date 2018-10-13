@@ -3,7 +3,6 @@
  */
 package genak
 
-import com.github.kittinunf.fuel.core.isSuccessful
 import com.github.kittinunf.fuel.httpGet
 import com.typesafe.config.ConfigBeanFactory
 import com.typesafe.config.ConfigFactory
@@ -20,6 +19,7 @@ import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.system.measureTimeMillis
 
 
 class PongTest {
@@ -51,28 +51,36 @@ class PongTest {
         influxDb.close()
     }
 
-
     @Test
-    fun tst() = runBlocking {
-        val (results, totalTime) = time {
-            spawnAndAwaitAll(100_000) {
+    fun tst() {
+        log.info("begin")
+        val totalTime = measureTimeMillis {
+            val total = 1_000_000
+            spawn(total) {
                 wget(id.getAndIncrement())
-            }
+            }.mapIndexed { i, promise ->
+                logProgress(i, total, 10, "promise")
+                promise
+            }.map {
+                runBlocking { it.await() }
+            }.mapIndexed { i, fulfilled ->
+                val (res, tim) = fulfilled
+                logProgress(i, total, 10, "fulfilled")
+                influxDb.write(measurement(res, tim))
+                fulfilled
+            }.count()//.toList()
         }
+//
+//        val zeroMsCount = results.filter { (res, tim) -> 0L == tim.elapsedMs }.count()
+//        val okCount = results.filter { (res, tim) -> res.response.isSuccessful }.count()
 
-        val zeroMsCount = results.filter { (res, tim) -> 0L == tim.elapsedMs }.count()
-        val okCount = results.filter { (res, tim) -> res.response.isSuccessful }.count()
+        log.info("totalTime {} msec", totalTime)
+    }
 
-        log.info("totalTime {}, zeroMsCount {}, okCount {}", totalTime, zeroMsCount, okCount)
-        val percent = (results.size / 100)
-        results.forEachIndexed { i, (res, tim) ->
-            if (0 == i % percent) {
-                log.info("{} / {}", i, results.size)
-            }
-            val point = measurement(res, tim)
-            influxDb.write(point)
+    inline fun logProgress(i: Int, total: Int, intervals: Int = 100, tag: String = "") {
+        if (0 == i % (total / intervals)) {
+            log.info("{}: {} / {}", tag, i, total)
         }
-
     }
 
     inline fun measurement(result: FuelRes, timings: Timings) =
