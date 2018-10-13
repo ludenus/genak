@@ -4,7 +4,7 @@
 
     <test name="Basic Tests" verbose="1">
         <classes>
-            <class name="genak.AppTest"/>
+            <class name="genak.PongTest"/>
 
         </classes>
     </test>

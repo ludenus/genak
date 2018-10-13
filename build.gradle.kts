@@ -32,13 +32,19 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.0-rc-131")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2")
 
+    // log
     implementation("org.slf4j:slf4j-api:1.7.21")
     implementation("ch.qos.logback:logback-core:1.2.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
+    // config
+    implementation("com.typesafe:config:1.3.3")
+
     // http client
     implementation("com.github.kittinunf.fuel:fuel:1.15.0")
 
+    // influx
+    implementation("org.influxdb:influxdb-java:2.13")
 
     // Use TestNG framework, also requires calling test.useTestNG() below
     testImplementation("org.testng:testng:6.14.3")
