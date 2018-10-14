@@ -12,12 +12,10 @@ import kotlinx.coroutines.experimental.runBlocking
 import org.influxdb.BatchOptions
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
-import org.influxdb.dto.Point
 import org.slf4j.LoggerFactory
 import org.testng.annotations.AfterClass
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.system.measureTimeMillis
 
@@ -33,13 +31,17 @@ class PongTest {
     val id = AtomicLong(0)
     lateinit var influxDb: InfluxDB
 
+    inline fun url(id: Long) = "${pongCfg.url}/ping/${id}"
+
+    inline fun wget(id: Long) = FuelRes(url(id).httpGet().responseString())
+
+
     @BeforeClass
     fun init() {
-
         influxDb = InfluxDBFactory.connect(influxCfg.url, influxCfg.user, influxCfg.pass)
         influxDb.setDatabase(influxCfg.dbName)
-        // Flush every 1000 Points, at least every 2000ms
-        influxDb.enableBatch(BatchOptions.DEFAULTS.actions(1000).flushDuration(2000))
+        // Flush every 10001 Points, at least every 10002ms
+        influxDb.enableBatch(BatchOptions.DEFAULTS.actions(10001).flushDuration(10002))
 
 //        val query = Query("SELECT idle FROM cpu", dbName)
 //        influxDb.query(query)
@@ -54,54 +56,25 @@ class PongTest {
     @Test
     fun tst() {
         log.info("begin")
+        val total = 100_000
         val totalTime = measureTimeMillis {
-            val total = 1_000_000
-            spawn(total) {
+
+            spawnSequence(total) {
                 wget(id.getAndIncrement())
             }.mapIndexed { i, promise ->
-                logProgressTime(i, total, "promise", 1000)
+                // logProgressPart(i, total, "promised", 10)
+                // logProgressTime(i, total, "promise", 1000)
                 promise
             }.map {
                 runBlocking { it.await() }
             }.mapIndexed { i, fulfilled ->
                 val (res, tim) = fulfilled
-                logProgressPart(i, total, "fulfilled", 100)
+                // logProgressPart(i, total, "fulfilled", 10)
                 influxDb.write(measurement(res, tim))
                 fulfilled
             }.count()//.toList()
         }
-//
-//        val zeroMsCount = results.filter { (res, tim) -> 0L == tim.elapsedMs }.count()
-//        val okCount = results.filter { (res, tim) -> res.response.isSuccessful }.count()
-
-        log.info("totalTime {} msec", totalTime)
+        log.info("totalCount {} totalTime {} msec, rate {} rps ", total, totalTime, total / (totalTime / 1000.0))
     }
-
-    inline fun logProgressTime(i: Int, total: Int, tag: String = "", periodInMilliseconds: Long = 1000) {
-        if (0L == System.currentTimeMillis() % periodInMilliseconds) {
-            log.info("{}: {} / {}", tag, i, total)
-        }
-    }
-
-    inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 100) {
-        if (0 == i % (total / parts)) {
-            log.info("{}: {} / {}", tag, i, total)
-        }
-    }
-
-    inline fun measurement(result: FuelRes, timings: Timings) =
-            Point.measurement("timing")
-                    .time(timings.endMs, TimeUnit.MILLISECONDS)
-                    .addField("elapsedMs", timings.elapsedMs)
-                    .addField("endMs", timings.endMs)
-                    .addField("result", result.resolve())
-//                .addField("res2",result.component2().toString())
-                    .build()
-
-    inline fun url(id: Long) = "${pongCfg.url}/ping/${id}"
-
-    fun wget(id: Long) = FuelRes(url(id).httpGet().responseString())
-
 
 }
-
