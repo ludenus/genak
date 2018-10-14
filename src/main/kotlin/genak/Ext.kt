@@ -1,7 +1,9 @@
 package genak
 
+import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.channels.Channel
 import org.influxdb.dto.Point
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
@@ -19,10 +21,26 @@ inline fun <V> time(lambda: () -> V): Pair<V, Timings> {
     return Pair(result, Timings(begin, end))
 }
 
+fun <V> CoroutineScope.spawnList(i: Int, lambda: () -> V): List<Deferred<Pair<V, Timings>>> = (1..i).map {
+    async {
+        time { lambda() }
+    }
+}
+
 fun <V> spawnSequence(i: Int, lambda: () -> V): Sequence<Deferred<Pair<V, Timings>>> = (1..i).asSequence().map {
     async {
         time { lambda() }
     }
+}
+
+
+suspend fun <V> Channel<Deferred<Pair<V, Timings>>>.spawnToChannel(i: Int, lambda: () -> V) = repeat(i) {
+    print("${i}")
+    this.send(
+            async {
+                time { lambda() }
+            }
+    )
 }
 
 
@@ -42,6 +60,8 @@ inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 10
         log.info("{}: {} / {}", tag, i, total)
     }
 }
+
+inline fun measurement(resTime: Pair<FuelRes, Timings>) = measurement(resTime.first, resTime.second)
 
 inline fun measurement(result: FuelRes, timings: Timings) =
         Point.measurement("timing")

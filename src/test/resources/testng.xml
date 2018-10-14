@@ -4,8 +4,9 @@
 
     <test name="Basic Tests" verbose="1">
         <classes>
-            <class name="genak.PongTest"/>
-
+            <class name="genak.PongSequenceTest"/>
+            <class name="genak.PongChannelTest"/>
+            <class name="genak.PongListTest"/>
         </classes>
     </test>
 
