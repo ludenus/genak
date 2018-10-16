@@ -14,12 +14,12 @@ class PongListTest : PongBase() {
     @Test
     fun listTest() = runBlocking {
         log.info("begin")
-        val total = 1_000_000
+        val total = 100_000
         val totalTime = measureTimeMillis {
 
             val (promises, promisesMs) = time {
                 spawnList(total) {
-                    wget(id.getAndIncrement())
+                    wget(promisedCount.getAndIncrement())
                 }
             }
 

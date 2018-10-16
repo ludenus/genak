@@ -3,45 +3,45 @@
  */
 package genak
 
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import org.testng.annotations.Test
 import kotlin.system.measureTimeMillis
 
 
 class PongChannelTest : PongBase() {
 
+
     @Test
     fun channelTest() = runBlocking {
         log.info("begin")
         val total = 100_000
         val totalTime = measureTimeMillis {
-            val channel = Channel<Deferred<Pair<FuelRes, Timings>>>(total)
+            val channel = Channel<Deferred<Pair<FuelRes, Timings>>>(1000)
 
-            launch {
+            launch(Dispatchers.Unconfined) {
                 for (i in 1..total) {
                     channel.send(
-                            async {
+                            async(CoroutineName("send$i")) {
                                 time {
-                                    logProgressPart(i, total, "promised", 10)
-                                    wget(id.getAndIncrement())
+                                    logProgressPart(i, total, "wget", 10)
+                                    wget(promisedCount.getAndIncrement())
                                 }
                             }
                     )
+
                 }
             }
 
-            for (i in 1..total) {
-                val promise = channel.receive()
-                logProgressPart(i, total, "promised", 10)
+            launch(Dispatchers.Unconfined + CoroutineName("reaper")) {
+                for (i in 1..total) {
+                    val promise = channel.receive()
+                    logProgressPart(i, total, "fulfilled", 10)
 
-                val fulfilled = promise.await()
-                measurement(fulfilled).reportHttp()
-            }
-
+                    val fulfilled = promise.await()
+                    measurement(fulfilled, "qwert02").reportHttp()
+                }
+            }.join()
             channel.cancel()
             channel.close()
         }

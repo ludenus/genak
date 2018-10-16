@@ -17,7 +17,7 @@ class PongSequenceTest : PongBase() {
         val totalTime = measureTimeMillis {
 
             spawnSequence(total) {
-                wget(id.getAndIncrement())
+                wget(promisedCount.getAndIncrement())
             }.mapIndexed { i, promise ->
                 logProgressPart(i, total, "promised", 10)
                 // logProgressTime(i, total, "promise", 1000)

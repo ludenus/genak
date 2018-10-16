@@ -23,7 +23,11 @@ open class PongBase {
     val influxCfg by lazy { ConfigBeanFactory.create(config.getConfig("influxdb"), InfluxCfg::class.java) }
     val pongCfg by lazy { ConfigBeanFactory.create(config.getConfig("pong"), PongCfg::class.java) }
 
-    val id = AtomicLong(0)
+    open val sessionTag = timestamp()
+
+    val promisedCount = AtomicLong(0)
+    val fulfilledCount = AtomicLong(0)
+
     lateinit var influxDb: InfluxDB
 
     inline fun url(id: Long) = "${pongCfg.url}/ping/${id}"
@@ -35,6 +39,7 @@ open class PongBase {
 
     @BeforeClass
     fun init() {
+        log.info("sessionTag: {}", sessionTag)
         influxDb = InfluxDBFactory.connect(influxCfg.url, influxCfg.user, influxCfg.pass)
         influxDb.enableGzip()
         influxDb.setDatabase(influxCfg.dbName)

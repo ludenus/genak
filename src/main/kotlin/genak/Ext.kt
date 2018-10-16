@@ -49,6 +49,12 @@ suspend fun <V> Channel<Deferred<Pair<V, Timings>>>.spawnToChannel(i: Int, lambd
 inline fun timestamp() = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Date())
 
 
+inline fun logMsec(msg: Any, tag: String = "", periodInMilliseconds: Long = 1000) {
+    if (0L == System.currentTimeMillis() % periodInMilliseconds) {
+        log.info("{}: {}", tag, msg)
+    }
+}
+
 inline fun logProgressTime(i: Int, total: Int, tag: String = "", periodInMilliseconds: Long = 1000) {
     if (0L == System.currentTimeMillis() % periodInMilliseconds) {
         log.info("{}: {} / {}", tag, i, total)
@@ -61,13 +67,15 @@ inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 10
     }
 }
 
-inline fun measurement(resTime: Pair<FuelRes, Timings>) = measurement(resTime.first, resTime.second)
+inline fun measurement(resTime: Pair<FuelRes, Timings>, tag: String = "session") = measurement(resTime.first, resTime.second, tag)
 
-inline fun measurement(result: FuelRes, timings: Timings) =
+inline fun measurement(result: FuelRes, timings: Timings, tag: String) =
         Point.measurement("timing")
                 .time(timings.endMs, TimeUnit.MILLISECONDS)
+                .tag("session", tag)
                 .addField("elapsedMs", timings.elapsedMs)
                 .addField("endMs", timings.endMs)
+                .addField("code", result.response.statusCode)
                 .addField("result", result.resolve())
 //                .addField("res2",result.component2().toString())
                 .build()
