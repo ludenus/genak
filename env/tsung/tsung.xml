@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE tsung SYSTEM "/usr/share/tsung/tsung-1.0.dtd">
+<tsung loglevel="warning">
+
+    <clients>
+        <client host="localhost" use_controller_vm="true"/>
+    </clients>
+
+    <servers>
+        <server host="pong" port="80" type="tcp"/>
+    </servers>
+
+    <load>
+        <arrivalphase phase="1" duration="100" unit="second">
+            <users arrivalrate="100" unit="second"/>
+        </arrivalphase>
+    </load>
+
+    <sessions>
+        <session name="dummy" weight="1" type="ts_http">
+            <request>
+                <http url="/ping/tsung" method="GET" version="1.1">
+                </http>
+            </request>
+        </session>
+    </sessions>
+</tsung>

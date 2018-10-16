@@ -8,6 +8,7 @@
             <class name="genak.PongChannelTest"/>
             <class name="genak.PongListTest"/>
             <class name="genak.PongTimeTest"/>
+            <class name="genak.PongTime2Test"/>
         </classes>
     </test>
 

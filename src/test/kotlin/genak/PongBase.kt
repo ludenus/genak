@@ -39,7 +39,6 @@ open class PongBase {
 
     @BeforeClass
     fun init() {
-        log.info("sessionTag: {}", sessionTag)
         influxDb = InfluxDBFactory.connect(influxCfg.url, influxCfg.user, influxCfg.pass)
         influxDb.enableGzip()
         influxDb.setDatabase(influxCfg.dbName)

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 
-class PongTimeTest : PongBase() {
+class PongTime2Test : PongBase() {
 
     @Test
     fun timeTest() = runBlocking {
