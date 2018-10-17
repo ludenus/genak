@@ -39,6 +39,15 @@ services:
     environment:
       INFLUX_DB_URL: "http://influxdb:8086"
       INFLUX_DB_NAME: "qadb"
+
+  postgres:
+    image: "postgres:10.3"
+    ports:
+    - "5132:5432"
+    environment:
+      POSTGRES_DB: qadb
+      POSTGRES_PASSWORD: "********"
+
 #
 #  tsung:
 #    build: tsung/

@@ -47,7 +47,7 @@ suspend fun <V> Channel<Deferred<Pair<V, Timings>>>.spawnToChannel(i: Int, lambd
 
 //suspend fun <V> spawnAndAwaitAll(i: Int, lambda: () -> V) = spawnSequence(i, lambda).map { it.await() }
 
-inline fun timestamp() = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Date())
+inline fun timestamp() = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(Date())
 
 
 inline fun logMsec(msg: Any, tag: String = "", periodInMilliseconds: Long = 1000) {
@@ -68,8 +68,11 @@ inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 10
     }
 }
 
+inline fun record(resTime: Pair<FuelRes, Timings>, tag: String) {
 
-inline fun measurement(resTime: Pair<FuelRes, Timings>, tag: String = "session") = measurement(resTime.first, resTime.second, tag)
+}
+
+inline fun measurement(resTime: Pair<FuelRes, Timings>, tag: String) = measurement(resTime.first, resTime.second, tag)
 
 inline fun measurement(response: Response, timings: Timings, tag: String) =
         Point.measurement("timing")

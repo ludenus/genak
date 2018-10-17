@@ -45,6 +45,9 @@ dependencies {
     // http client
     implementation("org.asynchttpclient:async-http-client:2.5.4")
 
+    // postgres
+    implementation("org.postgresql:postgresql:42.2.5")
+
     // influx
     implementation("org.influxdb:influxdb-java:2.13")
 

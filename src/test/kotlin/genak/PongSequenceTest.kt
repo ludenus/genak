@@ -23,7 +23,7 @@ class PongSequenceTest : PongBase() {
                 runBlocking { it.await() }
             }.mapIndexed { i, fulfilled ->
                 logProgressPart(i, total, "fulfilled", 10)
-                measurement(fulfilled).reportHttp()
+                measurement(fulfilled, sessionTag).reportHttp()
                 fulfilled
             }.count()//.toList()
         }

@@ -10,7 +10,7 @@ class PongListTest : PongBase() {
     @Test
     fun listTest() = runBlocking {
         log.info("sessionTag: {}", sessionTag)
-        val total = 10_000
+        val total = 100_000
         val totalTime = measureTimeMillis {
 
             val (promises, promisesMs) = time {
@@ -27,7 +27,8 @@ class PongListTest : PongBase() {
 
             val (_, reportMs) = time {
                 fulfilled.forEach {
-                    measurement(it).reportHttp()
+                    measurement(it, sessionTag).reportHttp()
+//                    measurement(it,sessionTag).reportFile()
                 }
             }
 

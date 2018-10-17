@@ -39,7 +39,7 @@ class PongChannelTest : PongBase() {
                     logProgressPart(i, total, "fulfilled", 10)
 
                     val fulfilled = promise.await()
-                    measurement(fulfilled, "qwert02").reportHttp()
+                    measurement(fulfilled, sessionTag).reportHttp()
                 }
             }.join()
             channel.cancel()
