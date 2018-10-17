@@ -39,15 +39,15 @@ services:
     environment:
       INFLUX_DB_URL: "http://influxdb:8086"
       INFLUX_DB_NAME: "qadb"
-
-  tsung:
-    build: tsung/
-    image: tsung:1.7.0
-    ports:
-    - "8191:8091"
-    volumes:
-    - ./tsung/tsung.xml:/root/.tsung/tsung.xml:ro
-    depends_on:
-    - pong
+#
+#  tsung:
+#    build: tsung/
+#    image: tsung:1.7.0
+#    ports:
+#    - "8191:8091"
+#    volumes:
+#    - ./tsung/tsung.xml:/root/.tsung/tsung.xml:ro
+#    depends_on:
+#    - pong
 
 

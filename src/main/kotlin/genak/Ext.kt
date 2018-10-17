@@ -4,6 +4,7 @@ import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.Channel
+import org.asynchttpclient.Response
 import org.influxdb.dto.Point
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
@@ -67,7 +68,21 @@ inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 10
     }
 }
 
+
 inline fun measurement(resTime: Pair<FuelRes, Timings>, tag: String = "session") = measurement(resTime.first, resTime.second, tag)
+
+inline fun measurement(response: Response, timings: Timings, tag: String) =
+        Point.measurement("timing")
+                .time(timings.endMs, TimeUnit.MILLISECONDS)
+                .tag("session", tag)
+                .addField("elapsedMs", timings.elapsedMs)
+                .addField("endMs", timings.endMs)
+                .addField("code", response.statusCode)
+                .addField("result", response.responseBody)
+//                .addField("res2",result.component2().toString())
+                .build()
+
+
 
 inline fun measurement(result: FuelRes, timings: Timings, tag: String) =
         Point.measurement("timing")

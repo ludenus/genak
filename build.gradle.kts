@@ -42,6 +42,9 @@ dependencies {
     // http client
     implementation("com.github.kittinunf.fuel:fuel:1.15.0")
 
+    // http client
+    implementation("org.asynchttpclient:async-http-client:2.5.4")
+
     // influx
     implementation("org.influxdb:influxdb-java:2.13")
 

@@ -5,6 +5,7 @@ package genak
 
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
+import org.asynchttpclient.Response
 import org.testng.annotations.Test
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
@@ -12,19 +13,24 @@ import kotlin.system.measureTimeMillis
 
 class PongTime2Test : PongBase() {
 
+    val aHttp = AHttp()
+
     @Test
     fun timeTest() = runBlocking {
         log.info("begin")
         log.info("sessionTag: {}", sessionTag)
 
         val totalTime = measureTimeMillis {
-            val channel = Channel<Deferred<Pair<FuelRes, Timings>>>(1000)
+            val channel = Channel<Deferred<Pair<Response, Timings>>>(1000)
 
             val sender = launch(newSingleThreadContext("sender")) {
                 while (isActive) {
                     channel.send(
                             async {
-                                time { wget(promisedCount.getAndIncrement()) }
+                                time {
+
+                                    aHttp.httpGet(url(promisedCount.getAndIncrement()))
+                                }
                             }
                     )
                 }
@@ -34,7 +40,7 @@ class PongTime2Test : PongBase() {
                 for (promise in channel) {
 //                        val promise = channel.receive()
                     val fulfilled = promise.await()
-                    measurement(fulfilled, sessionTag).reportHttp()
+                    measurement(fulfilled.first, fulfilled.second, sessionTag).reportHttp()
                     fulfilledCount.getAndIncrement()
 //                    logMsec("${fulfilledCount.getAndIncrement()} / $promisedCount", "fulfilled", 1000) //                    delay(11)
                 }
