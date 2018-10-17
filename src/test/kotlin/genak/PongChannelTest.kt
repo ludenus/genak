@@ -14,7 +14,7 @@ class PongChannelTest : PongBase() {
 
     @Test
     fun channelTest() = runBlocking {
-        log.info("begin")
+        log.info("sessionTag: {}", sessionTag)
         val total = 100_000
         val totalTime = measureTimeMillis {
             val channel = Channel<Deferred<Pair<FuelRes, Timings>>>(1000)

@@ -27,4 +27,21 @@ class AHttp {
                             throw t
                         }
                     }).get()
+
+    fun httpGetFuture(url: String) = client
+            .prepareGet(url)
+            .execute(
+                    object : AsyncCompletionHandler<Response>() {
+
+                        override fun onCompleted(response: Response): Response {
+                            log.debug("4 {}", response)
+                            return response
+                        }
+
+                        override fun onThrowable(t: Throwable) {
+                            log.error("-1", t)
+                            throw t
+                        }
+                    })
+
 }

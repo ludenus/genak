@@ -37,6 +37,7 @@ open class PongBase {
     inline fun Point.reportHttp() = influxDb.write(this)
     inline fun Point.reportUdp() = influxDb.write(influxCfg.udpPort, this)
 
+
     @BeforeClass
     fun init() {
         influxDb = InfluxDBFactory.connect(influxCfg.url, influxCfg.user, influxCfg.pass)
