@@ -50,16 +50,13 @@ suspend fun <V> Channel<Deferred<Pair<V, Timings>>>.spawnToChannel(i: Int, lambd
 
 inline fun timestamp() = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(Date())
 
+var nextLogMsec = System.currentTimeMillis() + 1000
 
 inline fun logMsec(msg: Any, tag: String = "", periodInMilliseconds: Long = 1000) {
-    if (0L == System.currentTimeMillis() % periodInMilliseconds) {
+    val now = System.currentTimeMillis()
+    if (now >= nextLogMsec) {
         log.info("{}: {}", tag, msg)
-    }
-}
-
-inline fun logProgressTime(i: Int, total: Int, tag: String = "", periodInMilliseconds: Long = 1000) {
-    if (0L == System.currentTimeMillis() % periodInMilliseconds) {
-        log.info("{}: {} / {}", tag, i, total)
+        nextLogMsec = now + periodInMilliseconds
     }
 }
 

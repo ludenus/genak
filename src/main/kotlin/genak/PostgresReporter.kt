@@ -1,12 +1,19 @@
 package genak
 
+import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+import kotlin.system.measureTimeMillis
 
-class PostgresReporter(connection: Connection, val flushRecords: Int = Int.MAX_VALUE, val flushMillisecods: Long = 10000, reCreateTable: Boolean = false) {
+class PostgresReporter(val connection: Connection, val flushRecords: Int = Int.MAX_VALUE, val flushMillisecods: Long = 10000, reCreateTable: Boolean = false) {
+
+    val log = LoggerFactory.getLogger(this.javaClass.name)
 
     val counter = AtomicInteger(0)
+    var flushTimeMsec = AtomicLong(System.currentTimeMillis() + flushMillisecods)
+
     val insertTimingsStm: PreparedStatement
     val createTableTimingsSql = """
       |DROP TABLE IF EXISTS timings;
@@ -32,6 +39,7 @@ class PostgresReporter(connection: Connection, val flushRecords: Int = Int.MAX_V
     init {
         if (reCreateTable) {
             connection.prepareStatement(createTableTimingsSql).execute()
+            connection.commit()
         }
 
         insertTimingsStm = connection.prepareStatement(insertTimingsSql)
@@ -39,13 +47,21 @@ class PostgresReporter(connection: Connection, val flushRecords: Int = Int.MAX_V
     }
 
     inline fun haveEnoughRecords() = 0 == counter.get() % flushRecords
-    inline fun waitedEnoughMilliseconds() = 0L == System.currentTimeMillis() % flushMillisecods
+    inline fun timeToFlush() = System.currentTimeMillis() >= flushTimeMsec.get()
 
 
     fun flush() {
-        insertTimingsStm.executeBatch()
+        val ms = measureTimeMillis {
+            insertTimingsStm.executeBatch()
+            connection.commit()
+        }
+
+        log.info("flushed {} records in {} ms", counter, ms)
+
         counter.set(0)
+        flushTimeMsec.set(System.currentTimeMillis() + flushMillisecods)
     }
+
 
     fun addRow(record: PostgresRecord) {
 
@@ -61,11 +77,9 @@ class PostgresReporter(connection: Connection, val flushRecords: Int = Int.MAX_V
 
         counter.getAndIncrement()
 
-
-        if (waitedEnoughMilliseconds() || haveEnoughRecords()) {
+        if (timeToFlush() || haveEnoughRecords()) {
             flush()
         }
-
 
     }
 

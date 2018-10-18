@@ -25,7 +25,9 @@ class PongTime2Test : PongBase() {
                     channel.send(
                             async {
                                 time {
-                                    aHttp.httpGetFuture(url(promisedCount.getAndIncrement()))
+                                    val promised = aHttp.httpGetFuture(url(promisedCount.getAndIncrement()))
+//                                    logMsec("${fulfilledCount} / ${promisedCount}", "promised", 10000)
+                                    promised
                                 }
                             }
                     )
@@ -36,11 +38,11 @@ class PongTime2Test : PongBase() {
                 for (promise in channel) {
 //                        val promise = channel.receive()
                     val fulfilled = promise.await()
-//                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportFile()
-                    postgresReporter.addRow(record(fulfilled.first.get(), fulfilled.second, sessionTag))
+                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportFile()
+//                    postgresReporter.addRow(record(fulfilled.first.get(), fulfilled.second, sessionTag))
 
                     fulfilledCount.getAndIncrement()
-//                    logMsec("${fulfilledCount.getAndIncrement()} / $promisedCount", "fulfilled", 1000) //                    delay(11)
+//                    logMsec("${fulfilledCount} / ${promisedCount}", "fulfilled", 10000)
                 }
             }
 

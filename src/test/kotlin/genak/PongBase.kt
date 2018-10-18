@@ -58,8 +58,8 @@ open class PongBase {
 //        val query = Query("SELECT idle FROM cpu", dbName)
 //        influxDb.query(query)
         postgresConnection = DriverManager.getConnection(postgresCfg.url)
-        postgresConnection.autoCommit = true
-        postgresReporter = PostgresReporter(postgresConnection, reCreateTable = false)
+        postgresConnection.autoCommit = false
+        postgresReporter = PostgresReporter(postgresConnection, reCreateTable = true)
 
     }
 
