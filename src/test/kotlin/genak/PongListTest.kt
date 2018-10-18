@@ -27,8 +27,9 @@ class PongListTest : PongBase() {
 
             val (_, reportMs) = time {
                 fulfilled.forEach {
-                    measurement(it, sessionTag).reportHttp()
+                    //                    measurement(it, sessionTag).reportHttp()
 //                    measurement(it,sessionTag).reportFile()
+                    record(it, sessionTag).reportDb()
                 }
             }
 

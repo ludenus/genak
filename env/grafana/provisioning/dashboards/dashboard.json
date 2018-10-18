@@ -18,6 +18,144 @@
   "links": [],
   "panels": [
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "postgresdb",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "$__interval",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__unixEpochGroupAlias(beginms,$__interval),\n  count(elapsedms) AS \"elapsedms\"\nFROM timings\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "elapsedms"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "count"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "elapsedms"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "timings",
+          "tags": [],
+          "timeColumn": "beginms",
+          "timeColumnType": "int8",
+          "where": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "postgresdb",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "aliasColors": {
         "timing.count": "#967302"
       },
@@ -30,7 +168,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 9
       },
       "id": 4,
       "interval": "1s",
@@ -149,7 +287,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 18
       },
       "id": 2,
       "interval": "10s",
@@ -294,7 +432,7 @@
     ]
   },
   "timezone": "",
-  "title": "dasboard01",
+  "title": "dasboard",
   "uid": "nVrrhs1mk",
   "version": 1
 }

@@ -1,5 +1,6 @@
 package genak
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
@@ -68,7 +69,35 @@ inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 10
     }
 }
 
-inline fun record(resTime: Pair<FuelRes, Timings>, tag: String) {
+data class Record(
+        var beginMs: Long = 0L,
+        var endMs: Long = 0L,
+        var elapsedMs: Long = 0L,
+        var session: String = "",
+        var result: String = "",
+        var tags: Map<String, String> = emptyMap(),
+        var message: String = ""
+)
+
+val objectMapper by lazy { ObjectMapper() }
+fun Any.toJson() = objectMapper.writeValueAsString(this)
+
+inline fun record(resTime: Pair<FuelRes, Timings>, tag: String): Record {
+    //beginMs, endMs, elapsedMs, session, result, tags, message
+    val (res, tim) = resTime
+    return Record(
+            beginMs = tim.beginMs,
+            endMs = tim.endMs,
+            elapsedMs = tim.elapsedMs,
+            session = tag,
+            result = if (res.response.statusCode == 200) {
+                "OK"
+            } else {
+                "KO"
+            },
+            tags = mapOf("session" to tag),
+            message = res.response.responseMessage
+    )
 
 }
 
@@ -84,7 +113,6 @@ inline fun measurement(response: Response, timings: Timings, tag: String) =
                 .addField("result", response.responseBody)
 //                .addField("res2",result.component2().toString())
                 .build()
-
 
 
 inline fun measurement(result: FuelRes, timings: Timings, tag: String) =

@@ -49,18 +49,17 @@ open class PongBase {
 
     inline fun Point.reportFile() = reportWriter.write("${this}\n")
 
-    inline fun Point.reportDb() {
+    inline fun Record.reportDb() {
 
-        insertTimingsStm.setString(1, currentRecord.topic)
-        insertTimingsStm.setLong(2, currentRecord.partition)
-        insertTimingsStm.setLong(3, currentRecord.offset)
-        insertTimingsStm.setString(4, s"${currentRecord.partition}-${currentRecord.offset}")
-        insertTimingsStm.setLong(5, currentRecord.timestamp)
-        insertTimingsStm.setString(6, currentRecord.key)
-        insertTimingsStm.setString(7, currentRecord.value)
+        insertTimingsStm.setLong(1, this.beginMs)
+        insertTimingsStm.setLong(2, this.endMs)
+        insertTimingsStm.setLong(3, this.elapsedMs)
+        insertTimingsStm.setString(4, this.session)
+        insertTimingsStm.setString(5, this.result)
+        insertTimingsStm.setString(6, this.tags.toJson())
+        insertTimingsStm.setString(7, this.message)
+
         insertTimingsStm.addBatch()
-
-        insertTimingsStm.executeBatch()
 
     }
 
@@ -76,12 +75,15 @@ open class PongBase {
 
         postgres = DriverManager.getConnection(postgresCfg.url)
         postgres.autoCommit = true
+        postgres.prepareStatement(createTableTimingsSql).execute()
         insertTimingsStm = postgres.prepareStatement(insertTimingsSql)
 
     }
 
     @AfterClass
     fun cleanup() {
+        insertTimingsStm.executeBatch()
+        postgres.close()
         log.info("reportFile {}", reportFile.canonicalPath)
         reportWriter.flush()
         reportWriter.close()
@@ -97,8 +99,8 @@ open class PongBase {
       |CREATE TABLE IF NOT EXISTS timings
       |(
       |    id integer NOT NULL DEFAULT nextval('timings_id_seq'::regclass),
-      |    beginMs timestamp NOT NULL,
-      |    endMs timestamp NOT NULL,
+      |    beginMs bigint NOT NULL,
+      |    endMs bigint NOT NULL,
       |    elapsedMs bigint,
       |    session varchar(30),
       |    result varchar(10),

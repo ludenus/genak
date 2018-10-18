@@ -45,6 +45,10 @@ dependencies {
     // http client
     implementation("org.asynchttpclient:async-http-client:2.5.4")
 
+    // json object mapper
+    implementation("com.fasterxml.jackson.core:jackson-core:2.9.5")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.5")
+
     // postgres
     implementation("org.postgresql:postgresql:42.2.5")
 

@@ -1,34 +1,34 @@
-# config file version
 apiVersion: 1
 
-# list of datasources that should be deleted from the database
 deleteDatasources:
   - name: influxdb
     orgId: 1
+  - name: influxdb
 
-# list of datasources to insert/update depending
-# whats available in the database
 datasources:
-  # <string, required> name of the datasource. Required
 - name: influxdb
-  # <string, required> datasource type. Required
   type: influxdb
-  # <string, required> access mode. direct or proxy. Required
   access: proxy
-  # <int> org id. will default to orgId 1 if not specified
   orgId: 1
-  # <string> url
   url: http://influxdb:8086
-  # <string> database password, if used
   password: "********"
-  # <string> database user, if used
   user: dbuser
-  # <string> database name, if used
   database: qadb
-
-  # <bool> mark as default datasource. Max one per org
   isDefault: true
-
   version: 1
-  # <bool> allow users to edit datasources from the UI.
   editable: true
+
+- name: postgresdb
+  type: postgres
+  url: postgres:5432
+  database: qadb
+  user: postgres
+  secureJsonData:
+    password: "********"
+  jsonData:
+    sslmode: "disable" # disable/require/verify-ca/verify-full
+    maxOpenConns: 0
+    maxIdleConns: 2
+    connMaxLifetime: 14400  # Grafana v5.4+
+    postgresVersion: 1000 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
+    timescaledb: false
