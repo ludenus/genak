@@ -15,7 +15,6 @@ import org.testng.annotations.AfterClass
 import org.testng.annotations.BeforeClass
 import java.sql.Connection
 import java.sql.DriverManager
-import java.sql.PreparedStatement
 import java.util.concurrent.atomic.AtomicLong
 
 
@@ -34,8 +33,8 @@ open class PongBase {
     val fulfilledCount = AtomicLong(0)
 
     lateinit var influxDb: InfluxDB
-    lateinit var postgres: Connection
-    lateinit var insertTimingsStm: PreparedStatement
+    lateinit var postgresConnection: Connection
+    lateinit var postgresReporter: PostgresReporter
 
     val reportFile by lazy { createTempFile("report.gnk") }
     val reportWriter by lazy { reportFile.bufferedWriter(bufferSize = 1 * 1024 * 1024) }
@@ -49,19 +48,6 @@ open class PongBase {
 
     inline fun Point.reportFile() = reportWriter.write("${this}\n")
 
-    inline fun Record.reportDb() {
-
-        insertTimingsStm.setLong(1, this.beginMs)
-        insertTimingsStm.setLong(2, this.endMs)
-        insertTimingsStm.setLong(3, this.elapsedMs)
-        insertTimingsStm.setString(4, this.session)
-        insertTimingsStm.setString(5, this.result)
-        insertTimingsStm.setString(6, this.tags.toJson())
-        insertTimingsStm.setString(7, this.message)
-
-        insertTimingsStm.addBatch()
-
-    }
 
     @BeforeClass
     fun init() {
@@ -71,19 +57,16 @@ open class PongBase {
         influxDb.enableBatch(BatchOptions.DEFAULTS.actions(influxCfg.flushEveryPoints).flushDuration(influxCfg.flushEveryMsec))
 //        val query = Query("SELECT idle FROM cpu", dbName)
 //        influxDb.query(query)
-
-
-        postgres = DriverManager.getConnection(postgresCfg.url)
-        postgres.autoCommit = true
-        postgres.prepareStatement(createTableTimingsSql).execute()
-        insertTimingsStm = postgres.prepareStatement(insertTimingsSql)
+        postgresConnection = DriverManager.getConnection(postgresCfg.url)
+        postgresConnection.autoCommit = true
+        postgresReporter = PostgresReporter(postgresConnection, reCreateTable = false)
 
     }
 
     @AfterClass
     fun cleanup() {
-        insertTimingsStm.executeBatch()
-        postgres.close()
+        postgresReporter.flush()
+        postgresConnection.close()
         log.info("reportFile {}", reportFile.canonicalPath)
         reportWriter.flush()
         reportWriter.close()
@@ -91,27 +74,5 @@ open class PongBase {
         influxDb.close()
     }
 
-
-    val createTableTimingsSql = """
-      |DROP TABLE IF EXISTS timings;
-      |DROP SEQUENCE IF EXISTS timings_id_seq;
-      |CREATE SEQUENCE IF NOT EXISTS timings_id_seq;
-      |CREATE TABLE IF NOT EXISTS timings
-      |(
-      |    id integer NOT NULL DEFAULT nextval('timings_id_seq'::regclass),
-      |    beginMs bigint NOT NULL,
-      |    endMs bigint NOT NULL,
-      |    elapsedMs bigint,
-      |    session varchar(30),
-      |    result varchar(10),
-      |    tags jsonb,
-      |    message text,
-      |    CONSTRAINT timings_pkey PRIMARY KEY (id)
-      |);
-      |""".trimMargin("|")
-
-
-    val insertTimingsSql = "INSERT INTO timings (beginMs, endMs, elapsedMs, session, result, tags, message) values (?, ?, ?, ?, ?, to_json(?::json), ?)"
-    
 
 }

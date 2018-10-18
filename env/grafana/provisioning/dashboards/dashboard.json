@@ -171,7 +171,7 @@
         "y": 9
       },
       "id": 4,
-      "interval": "1s",
+      "interval": "10s",
       "legend": {
         "alignAsTable": true,
         "avg": true,
@@ -238,7 +238,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Panel Title",
+      "title": "influx",
       "tooltip": {
         "shared": true,
         "sort": 0,

@@ -29,7 +29,7 @@ class PongListTest : PongBase() {
                 fulfilled.forEach {
                     //                    measurement(it, sessionTag).reportHttp()
 //                    measurement(it,sessionTag).reportFile()
-                    record(it, sessionTag).reportDb()
+                    postgresReporter.addRow(record(it, sessionTag))
                 }
             }
 

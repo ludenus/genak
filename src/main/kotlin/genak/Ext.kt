@@ -69,23 +69,13 @@ inline fun logProgressPart(i: Int, total: Int, tag: String = "", parts: Int = 10
     }
 }
 
-data class Record(
-        var beginMs: Long = 0L,
-        var endMs: Long = 0L,
-        var elapsedMs: Long = 0L,
-        var session: String = "",
-        var result: String = "",
-        var tags: Map<String, String> = emptyMap(),
-        var message: String = ""
-)
-
 val objectMapper by lazy { ObjectMapper() }
 fun Any.toJson() = objectMapper.writeValueAsString(this)
 
-inline fun record(resTime: Pair<FuelRes, Timings>, tag: String): Record {
+inline fun record(resTime: Pair<FuelRes, Timings>, tag: String): PostgresRecord {
     //beginMs, endMs, elapsedMs, session, result, tags, message
     val (res, tim) = resTime
-    return Record(
+    return PostgresRecord(
             beginMs = tim.beginMs,
             endMs = tim.endMs,
             elapsedMs = tim.elapsedMs,
@@ -100,6 +90,21 @@ inline fun record(resTime: Pair<FuelRes, Timings>, tag: String): Record {
     )
 
 }
+
+inline fun record(res: Response, tim: Timings, tag: String) = PostgresRecord(
+        beginMs = tim.beginMs,
+        endMs = tim.endMs,
+        elapsedMs = tim.elapsedMs,
+        session = tag,
+        result = if (res.statusCode == 200) {
+            "OK"
+        } else {
+            "KO"
+        },
+        tags = mapOf("session" to tag),
+        message = res.responseBody
+)
+
 
 inline fun measurement(resTime: Pair<FuelRes, Timings>, tag: String) = measurement(resTime.first, resTime.second, tag)
 
