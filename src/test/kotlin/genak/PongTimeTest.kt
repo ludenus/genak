@@ -20,7 +20,6 @@ class PongTimeTest : PongBase() {
                 while (isActive) {
                     channel.send(
                             async {
-                                logMsec("${fulfilledCount.getAndIncrement()} / $promisedCount", "fulfilled", 10000)
                                 time { wget(promisedCount.getAndIncrement()) }
                             }
 
@@ -34,7 +33,7 @@ class PongTimeTest : PongBase() {
                     val fulfilled = promise.await()
                     measurement(fulfilled, sessionTag).reportHttp()
                     fulfilledCount.getAndIncrement()
-                    logMsec("${fulfilledCount.getAndIncrement()} / $promisedCount", "fulfilled", 10000)
+//                    logMsec("${fulfilledCount} / $promisedCount", "fulfilled", 10000)
                 }
             }
 

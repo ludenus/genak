@@ -202,7 +202,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "1s"
               ],
               "type": "time"
             },
@@ -434,5 +434,5 @@
   "timezone": "",
   "title": "dasboard",
   "uid": "nVrrhs1mk",
-  "version": 1
+  "version": 2
 }
