@@ -2,6 +2,7 @@ package genak
 
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ticker
 import org.asynchttpclient.ListenableFuture
 import org.asynchttpclient.Response
 import org.testng.annotations.Test
@@ -9,28 +10,36 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 
-class PongTime2Test : PongBase() {
+class PongTickTest : PongBase() {
 
     val aHttp = AHttp()
 
     @Test
-    fun timeTest() = runBlocking {
+    fun tickTest() = runBlocking {
         log.info("sessionTag: {}", sessionTag)
+
+        val rateRps = 5000
+        val sendPerMs = rateRps / 100
+        val tick = ticker(delayMillis = 10, initialDelayMillis = 0)
+
 
         val totalTime = measureTimeMillis {
             val channel = Channel<Deferred<Pair<ListenableFuture<Response>, Timings>>>(1000)
 
             val sender = launch(newSingleThreadContext("sender")) {
                 while (isActive) {
-                    channel.send(
-                            async {
-                                time {
-                                    val promised = aHttp.httpGetFuture(url(promisedCount.getAndIncrement()))
-//                                    logMsec("${fulfilledCount} / ${promisedCount}", "promised", 10000)
-                                    promised
-                                }
-                            }
-                    )
+                    withTimeoutOrNull(100) { tick.receive() }?.let{
+                        repeat(sendPerMs) {
+                            channel.send(
+                                    async {
+                                        time {
+                                            aHttp.httpGetFuture(url(promisedCount.getAndIncrement()))
+                                        }
+                                    }
+                            )
+                        }
+                    }
+
                 }
             }
 
@@ -38,12 +47,10 @@ class PongTime2Test : PongBase() {
                 for (promise in channel) {
 //                        val promise = channel.receive()
                     val fulfilled = promise.await()
-                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportFile()
-//                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportHttp()
-//                    postgresReporter.addRow(record(fulfilled.first.get(), fulfilled.second, sessionTag))
+//                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportFile()
+                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportHttp()
 
                     fulfilledCount.getAndIncrement()
-//                    logMsec("${fulfilledCount} / ${promisedCount}", "fulfilled", 10000)
                 }
             }
 

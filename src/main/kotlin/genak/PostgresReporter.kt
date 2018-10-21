@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.system.measureTimeMillis
 
-class PostgresReporter(val connection: Connection, val flushRecords: Int = Int.MAX_VALUE, val flushMillisecods: Long = 10000, reCreateTable: Boolean = false) {
+class PostgresReporter(val connection: Connection, val flushRecords: Int = 10000, val flushMillisecods: Long = 10000, reCreateTable: Boolean = false) {
 
     val log = LoggerFactory.getLogger(this.javaClass.name)
 

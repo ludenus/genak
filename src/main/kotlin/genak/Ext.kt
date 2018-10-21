@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
 val log = LoggerFactory.getLogger("Ext")
 
@@ -102,13 +103,13 @@ inline fun record(res: Response, tim: Timings, tag: String) = PostgresRecord(
         message = res.responseBody
 )
 
-var saturate = 0L // have to add microseconds so records with the same timestamp were saved in influxdb
+val saturate = AtomicLong(0) // have to add microseconds so records with the same timestamp were saved in influxdb
 
 inline fun measurement(resTime: Pair<FuelRes, Timings>, tag: String) = measurement(resTime.first, resTime.second, tag)
 
 inline fun measurement(response: Response, timings: Timings, tag: String) =
         Point.measurement("timing")
-                .time(timings.endMs * 1000 + (saturate++ % 1000), TimeUnit.MICROSECONDS)
+                .time(timings.endMs * 1000 + (saturate.getAndIncrement() % 1000), TimeUnit.MICROSECONDS)
                 .tag("session", tag)
                 .addField("elapsedMs", timings.elapsedMs)
                 .addField("endMs", timings.endMs)
@@ -120,7 +121,7 @@ inline fun measurement(response: Response, timings: Timings, tag: String) =
 
 inline fun measurement(result: FuelRes, timings: Timings, tag: String) =
         Point.measurement("timing")
-                .time(timings.endMs * 1000 + (saturate++ % 1000), TimeUnit.MICROSECONDS)
+                .time(timings.endMs * 1000 + (saturate.getAndIncrement() % 1000), TimeUnit.MICROSECONDS)
                 .tag("session", tag)
                 .addField("elapsedMs", timings.elapsedMs)
                 .addField("endMs", timings.endMs)

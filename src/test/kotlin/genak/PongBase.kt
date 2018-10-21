@@ -59,7 +59,7 @@ open class PongBase {
 //        influxDb.query(query)
         postgresConnection = DriverManager.getConnection(postgresCfg.url)
         postgresConnection.autoCommit = false
-        postgresReporter = PostgresReporter(postgresConnection, reCreateTable = true)
+        postgresReporter = PostgresReporter(postgresConnection, reCreateTable = false)
 
     }
 
