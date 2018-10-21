@@ -3,5 +3,10 @@
 
 * rps throttling
 
-* gzip report file
+* users, sessions
 
+* feeders,templates
+
+* checks, assertions
+
+* gzip report file

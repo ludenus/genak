@@ -1,5 +1,6 @@
 package genak
 
+
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ticker
@@ -19,37 +20,35 @@ class PongTickTest : PongBase() {
         log.info("sessionTag: {}", sessionTag)
 
         val rateRps = 5000
-        val sendPerMs = rateRps / 100
-        val tick = ticker(delayMillis = 10, initialDelayMillis = 0)
+        val sendPerMs = rateRps / 1000
+        val tick = ticker(delayMillis = 1, initialDelayMillis = 0)
 
 
         val totalTime = measureTimeMillis {
-            val channel = Channel<Deferred<Pair<ListenableFuture<Response>, Timings>>>(1000)
+            val channel = Channel<Deferred<Pair<ListenableFuture<Response>, Long>>>(1000)
 
             val sender = launch(newSingleThreadContext("sender")) {
                 while (isActive) {
-                    withTimeoutOrNull(100) { tick.receive() }?.let{
+                    withTimeoutOrNull(100) { tick.receive() }?.let {
                         repeat(sendPerMs) {
                             channel.send(
                                     async {
-                                        time {
+                                        markTime {
                                             aHttp.httpGetFuture(url(promisedCount.getAndIncrement()))
                                         }
                                     }
                             )
                         }
                     }
-
                 }
             }
 
             val receiver = launch(newSingleThreadContext("receiver")) {
                 for (promise in channel) {
-//                        val promise = channel.receive()
-                    val fulfilled = promise.await()
-//                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportFile()
-                    measurement(fulfilled.first.get(), fulfilled.second, sessionTag).reportHttp()
-
+                    val (fulfilled, beginMs) = promise.await()
+                    val response = fulfilled.get()
+                    val endMs = System.currentTimeMillis()
+                    measurement(response, Timings(beginMs, endMs), sessionTag).reportHttp()
                     fulfilledCount.getAndIncrement()
                 }
             }
@@ -57,7 +56,7 @@ class PongTickTest : PongBase() {
             log.info("waiting....")
             delay(100, TimeUnit.SECONDS)
             log.info("canceling...")
-            sender.cancel()
+            sender.cancelAndJoin()
             receiver.cancelAndJoin()
             channel.cancel()
             channel.close()

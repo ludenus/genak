@@ -24,6 +24,14 @@ inline fun <V> time(lambda: () -> V): Pair<V, Timings> {
     return Pair(result, Timings(begin, end))
 }
 
+inline fun <V> markTime(lambda: () -> V): Pair<V, Long> {
+
+    val begin = System.currentTimeMillis()
+    val result = lambda()
+
+    return Pair(result, begin)
+}
+
 fun <V> CoroutineScope.spawnList(i: Int, lambda: () -> V): List<Deferred<Pair<V, Timings>>> = (1..i).map {
     async {
         time { lambda() }
