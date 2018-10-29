@@ -1,6 +1,6 @@
 package genak
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.testng.annotations.Test
 import kotlin.system.measureTimeMillis
 
@@ -10,7 +10,7 @@ class PongListTest : PongBase() {
     @Test
     fun listTest() = runBlocking {
         log.info("sessionTag: {}", sessionTag)
-        val total = 500_000
+        val total = 100_000
         val totalTime = measureTimeMillis {
 
             val (promises, promisesMs) = time {
@@ -35,8 +35,8 @@ class PongListTest : PongBase() {
             val (_, reportMs) = time {
                 points.map {
 //                    it.reportUdp()
-//                    it.reportHttp()
-                    it.reportFile()
+                    it.reportHttp()
+//                    it.reportFile()
 //                    postgresReporter.addRow(it)
                 }
             }

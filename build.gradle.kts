@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.3.0-rc-131")
+    id("org.jetbrains.kotlin.jvm").version("1.3.0")
 
     // Apply the application to add support for building a CLI application
     application
@@ -25,11 +25,11 @@ val test by tasks.getting(Test::class) {
 
 dependencies {
     // Use the Kotlin JDK 8 standard library
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.0-rc-131")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.0")
 
 //    implementation(kotlin("stdlib", "1.2.60"))
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.0-rc-131")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0")
 
     // log
     implementation("org.slf4j:slf4j-api:1.7.21")

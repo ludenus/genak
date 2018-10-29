@@ -1,10 +1,10 @@
 package genak
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import org.asynchttpclient.Response
 import org.influxdb.dto.Point
 import org.slf4j.LoggerFactory
@@ -38,21 +38,21 @@ fun <V> CoroutineScope.spawnList(i: Int, lambda: () -> V): List<Deferred<Pair<V,
     }
 }
 
-fun <V> spawnSequence(i: Int, lambda: () -> V): Sequence<Deferred<Pair<V, Timings>>> = (1..i).asSequence().map {
+fun <V> CoroutineScope.spawnSequence(i: Int, lambda: () -> V): Sequence<Deferred<Pair<V, Timings>>> = (1..i).asSequence().map {
     async {
         time { lambda() }
     }
 }
 
-
-suspend fun <V> Channel<Deferred<Pair<V, Timings>>>.spawnToChannel(i: Int, lambda: () -> V) = repeat(i) {
-    print("${i}")
-    this.send(
-            async {
-                time { lambda() }
-            }
-    )
-}
+//
+//suspend fun <V> Channel<Deferred<Pair<V, Timings>>>.spawnToChannel(i: Int, lambda: () -> V) = repeat(i) {
+//    print("${i}")
+//    this.send(
+//            async {
+//                time { lambda() }
+//            }
+//    )
+//}
 
 
 //suspend fun <V> spawnAndAwaitAll(i: Int, lambda: () -> V) = spawnSequence(i, lambda).map { it.await() }

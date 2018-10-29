@@ -3,8 +3,8 @@
  */
 package genak
 
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import org.testng.annotations.Test
 import kotlin.system.measureTimeMillis
 

@@ -1,6 +1,6 @@
 package genak
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.testng.annotations.Test
 import kotlin.system.measureTimeMillis
 

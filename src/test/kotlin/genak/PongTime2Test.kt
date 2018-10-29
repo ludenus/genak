@@ -1,7 +1,7 @@
 package genak
 
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import org.asynchttpclient.ListenableFuture
 import org.asynchttpclient.Response
 import org.testng.annotations.Test
@@ -48,7 +48,7 @@ class PongTime2Test : PongBase() {
             }
 
             log.info("waiting....")
-            delay(100, TimeUnit.SECONDS)
+            delay(100_000)
             log.info("canceling...")
             sender.cancel()
             receiver.cancelAndJoin()
